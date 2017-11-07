@@ -71,8 +71,28 @@ ON DailyErrors.time = DailyRequestCount.ShortDate) As ErrorPercent
 
 
 --Testing query 3 to rebuild
+
 SELECT COUNT(*) as ErrorCount
 FROM log
 WHERE
 status <> '200 OK'
 
+
+--Table Layouts
+--
+-- articles              authors             log
+--
+-- author  int
+-- title   txt
+-- slug    txt
+-- lead    txt
+-- body    txt
+-- time    txt
+-- id      int           id      int         id      int
+--                       bio     txt
+--                       name    txt
+--                                           path    txt
+--                                           ip      inet
+--                                           method  txt
+--                                           status  txt
+--                                           time    timestamp with timezone
