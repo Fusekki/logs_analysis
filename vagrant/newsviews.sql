@@ -64,3 +64,15 @@ SELECT COUNT(DATE(time)) requests_count, date(time) as ShortDate
 FROM log
 GROUP BY ShortDate) as DailyRequestCount
 ON DailyErrors.time = DailyRequestCount.ShortDate) As ErrorPercent
+
+
+
+
+
+
+--Testing query 3 to rebuild
+SELECT COUNT(*) as ErrorCount
+FROM log
+WHERE
+status <> '200 OK'
+
