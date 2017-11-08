@@ -78,6 +78,9 @@ WHERE
 status <> '200 OK'
 
 
+select count(time), time::date from log group by time::date order by time::date;
+select count(time), time::date from log where time::date='2016-07-02' group by time::date;
+
 --Table Layouts
 --
 -- articles              authors             log
