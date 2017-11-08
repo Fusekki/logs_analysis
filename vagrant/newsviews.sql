@@ -45,57 +45,17 @@ ORDER BY AuthorHits DESC;
 --Create Daily Error Percentage View
 --This view reports the error percentage, the error count, and request count of each date logged with activity.
 CREATE VIEW dailyerrors AS
-SELECT ErrorPercent.date, concat(SUBSTRING(cast(ErrorPercent.ErrorDecimal as varchar(5)), 1, 3), ' %') as ErrorDecimal, ErrorPercent.errorcount, ErrorPercent.requestcount
+select HitsByDate.time as Date, CONCAT(cast(cast(cast(ErrorsByDate.count as decimal) / cast(HitsByDate.count as decimal) * 100 as decimal(10,2)) as varchar(5)), ' %') as ErrorPercent
 FROM (
-SELECT DailyErrors.dailyerrorcount as errorcount, DailyRequestCount.requests_count as requestcount, DailyErrors.time as date, ROUND((DailyErrors.DailyErrorCount / DailyRequestCount.requests_count), 2) * 100  as ErrorDecimal
-FROM  (
-SELECT SUM(ErrorByDay.count) DailyErrorCount, ErrorByDay.ErrorDate as time
-FROM (
-SELECT COUNT(status), DATE(time) as ErrorDate
-FROM (
-SELECT status, time
-FROM log
-WHERE status <> '200 OK'
-GROUP BY status, time) as ErrorTimes
-GROUP BY ErrorTimes.time, ErrorDate) as ErrorByDay
-GROUP BY ErrorByDay.ErrorDate, ErrorByDay.count) as DailyErrors
-LEFT JOIN (
-SELECT COUNT(DATE(time)) requests_count, date(time) as ShortDate
-FROM log
-GROUP BY ShortDate) as DailyRequestCount
-ON DailyErrors.time = DailyRequestCount.ShortDate) As ErrorPercent
-
-
-
-
-
-
---Testing query 3 to rebuild
-
-SELECT COUNT(*) as ErrorCount
-FROM log
+select count(time), time::date
+from log
+group by time::date) as HitsByDate
+left join (
+select count(time), time::date
+from log
 WHERE
 status <> '200 OK'
-
-
-select count(time), time::date from log group by time::date order by time::date;
-select count(time), time::date from log where time::date='2016-07-02' group by time::date;
-
---Table Layouts
---
--- articles              authors             log
---
--- author  int
--- title   txt
--- slug    txt
--- lead    txt
--- body    txt
--- time    txt
--- id      int           id      int         id      int
---                       bio     txt
---                       name    txt
---                                           path    txt
---                                           ip      inet
---                                           method  txt
---                                           status  txt
---                                           time    timestamp with timezone
+group by time::date) as ErrorsByDate
+on HitsByDate.time = ErrorsByDate.time
+WHERE
+cast(ErrorsByDate.count as decimal) / cast(HitsByDate.count as decimal) * 100 >= 1
