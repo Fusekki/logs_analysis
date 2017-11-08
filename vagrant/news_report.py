@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 import psycopg2
+from datetime import datetime
 
 
 def connect():
@@ -19,8 +20,17 @@ def reportTopArticles(amount):
             "LIMIT {0}".format(amount)
     c.execute(query)
     rows = c.fetchall()
-    print rows
-    return rows
+
+    response = "    Top {0} Articles by Views\n"  \
+               "-----------------------------\n".format(amount)
+    responseFooter = ""
+
+    for r in rows:
+        responseFooter += "\"" + str(r[0]) + "\" -- " + str(r[1]) + " views\n"
+
+    response += responseFooter
+    print response
+    return response
 
 
 def reportTopAuthors():
@@ -29,8 +39,17 @@ def reportTopAuthors():
     query = "SELECT * FROM authorsrank"
     c.execute(query)
     rows = c.fetchall()
-    print rows
-    return rows
+
+    response = "Author Rank by Article Views\n"  \
+               "-----------------------------\n"
+    responseFooter = ""
+
+    for r in rows:
+        responseFooter += str(r[0]) + " -- " + str(r[1]) + " views\n"
+
+    response += responseFooter
+    print response
+    return response
 
 
 def reportDailyErrors(x):
@@ -47,13 +66,22 @@ def reportDailyErrors(x):
             .format(x)
     c.execute(query)
     rows = c.fetchall()
-    print rows
-    return rows
 
-    c.execute(query)
-    rows = c.fetchall()
-    print rows
-    return rows
+    response = "Dates With More Than {0}% Error Rate\n" \
+               "-----------------------------\n".format(x)
+
+    responseFooter = ""
+
+
+
+    for r in rows:
+        # date_object = datetime.strptime(r[0], '%m/%d/%Y')
+        date_object = r[0].strftime('%B %d, %Y')
+        responseFooter += str(date_object) + " - " + str(r[1]) + " errors\n"
+
+    response += responseFooter
+    print response
+    return response
 
 
 # And here we go...
