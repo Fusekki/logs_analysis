@@ -40,15 +40,11 @@ def reportDailyErrors(x):
     Args:
           x: the percentage of errors reported
     """
-    # Convert value to string.  Add a leading 0 if less than 10
-    if x < 10:
-        Perc = "0" + str(x)
-    else:
-        Perc = str(x)
 
     query = "SELECT * from dailyerrors " \
-            "WHERE (errorcount / requestcount >= .{0})" \
-            .format(Perc)
+            "WHERE " \
+            "cast(errorcount as decimal) / cast(hitcount as decimal) * 100 >= {0}" \
+            .format(x)
     c.execute(query)
     rows = c.fetchall()
     print rows
