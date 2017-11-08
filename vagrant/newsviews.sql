@@ -45,7 +45,7 @@ ORDER BY AuthorHits DESC;
 --Create Daily Error Percentage View
 --This view reports the error percentage, the error count, and request count of each date logged with activity.
 CREATE VIEW dailyerrors AS
-select HitsByDate.time as Date, CONCAT(cast(cast(cast(ErrorsByDate.count as decimal) / cast(HitsByDate.count as decimal) * 100 as decimal(10,2)) as varchar(5)), ' %') as ErrorPercent,
+select HitsByDate.time as Date, CONCAT(cast(cast(cast(ErrorsByDate.count as decimal) / cast(HitsByDate.count as decimal) * 100 as decimal(10,2)) as varchar(5)), '%') as ErrorPercent,
 ErrorsByDate.count as ErrorCount, HitsByDate.count as HitCount
 FROM (
 select count(time), time::date
