@@ -1,8 +1,8 @@
 # Logs Analysis Project
 A Python report generation tool that performs the following queries:
-* 1. What are the most popular three articles of all time? Which articles have been accessed the most?
-* 2. Who are the most popular article authors of all time?
-* 3. On which days did more than 1% of requests lead to errors? 
+* What are the most popular three articles of all time? Which articles have been accessed the most?
+* Who are the most popular article authors of all time?
+* On which days did more than 1% of requests lead to errors? 
 
 This is part of the Udacity Full Stack Nanodegree program.  As such, it is my official submission for the project.
 ## Utilizes:
