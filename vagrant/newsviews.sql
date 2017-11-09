@@ -11,11 +11,11 @@ DROP VIEW IF EXISTS dailyerrors;
 CREATE VIEW toparticles AS
 SELECT articles.title, hits.Hits
 FROM (
-SELECT COUNT(log.path) as Hits, SUBSTRING(log.path, 10) as Slug
-FROM log
-WHERE NOT path = '/'
-GROUP BY Slug
-ORDER BY Hits DESC
+  SELECT COUNT(log.path) as Hits, SUBSTRING(log.path, 10) as Slug
+  FROM log
+  WHERE NOT path = '/'
+  GROUP BY Slug
+  ORDER BY Hits DESC
 ) AS hits
 RIGHT JOIN articles ON
 hits.Slug = articles.slug;
@@ -25,17 +25,17 @@ hits.Slug = articles.slug;
 CREATE VIEW authorsrank AS
 SELECT  authors.name, SUM(Standings.HitCount) AuthorHits
 FROM (
-SELECT articles.author, articles.title, Hits.HitCount
-FROM (
-SELECT COUNT(log.path) as HitCount, SUBSTRING(log.path, 10) as Slug
-FROM log
-WHERE NOT path = '/'
-GROUP BY Slug
-ORDER BY HitCount DESC
-) as Hits
-RIGHT JOIN articles ON
-Hits.Slug = articles.slug
-GROUP BY articles.author, articles.title, Hits.HitCount
+  SELECT articles.author, articles.title, Hits.HitCount
+  FROM (
+    SELECT COUNT(log.path) as HitCount, SUBSTRING(log.path, 10) as Slug
+    FROM log
+    WHERE NOT path = '/'
+    GROUP BY Slug
+    ORDER BY HitCount DESC
+  ) as Hits
+  RIGHT JOIN articles ON
+  Hits.Slug = articles.slug
+  GROUP BY articles.author, articles.title, Hits.HitCount
 ORDER BY Hits.HitCount DESC) as Standings
 LEFT JOIN authors
 on authors.id = Standings.author
@@ -45,19 +45,18 @@ ORDER BY AuthorHits DESC;
 --Create Daily Error Percentage View
 --This view reports the error percentage, the error count, and request count of each date logged with activity.
 CREATE VIEW dailyerrors AS
-select HitsByDate.time as Date, CONCAT(cast(cast(cast(ErrorsByDate.count as decimal) / cast(HitsByDate.count as decimal) * 100 as decimal(10,2)) as varchar(5)), '%') as ErrorPercent,
-ErrorsByDate.count as ErrorCount, HitsByDate.count as HitCount
+SELECT HitsByDate.time AS Date, CONCAT(CAST(CAST(CAST(ErrorsByDate.count as decimal) / CAST(HitsByDate.count AS decimal) * 100 AS decimal(10,2)) AS varchar(5)), '%') AS ErrorPercent,
+ErrorsByDate.count as ErrorCount, HitsByDate.count AS HitCount
 FROM (
-select count(time), time::date
-from log
-group by time::date) as HitsByDate
-left join (
-select count(time), time::date
-from log
-WHERE
-status <> '200 OK'
-group by time::date) as ErrorsByDate
-on HitsByDate.time = ErrorsByDate.time
+  SELECT COUNT(time), time::date
+  FROM log
+GROUP BY time::date) AS HitsByDate
+LEFT JOIN (
+  SELECT COUNT(time), time::date
+  FROM log
+  WHERE status <> '200 OK'
+GROUP BY time::date) AS ErrorsByDate
+ON HitsByDate.time = ErrorsByDate.time
 
 
 
