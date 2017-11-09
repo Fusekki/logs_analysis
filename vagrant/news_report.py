@@ -1,12 +1,18 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 import psycopg2
 from datetime import datetime
+import sys
 
 
 def connect():
     """Connect to the PostgreSQL database news.  Returns a database
     connection."""
-    return psycopg2.connect("dbname=news")
+    try:
+        return psycopg2.connect("dbname=news")
+    except psycopg2.Error, e:
+        print 'Error in connecting. Make sure the database exists. ' \
+            'Now exiting application.'
+        sys.exit()
 
 
 def reportTopArticles(amount):
@@ -17,11 +23,11 @@ def reportTopArticles(amount):
     """
     query = "SELECT * FROM toparticles " \
             "ORDER BY hits DESC " \
-            "LIMIT {0}".format(amount)
-    c.execute(query)
-    rows = c.fetchall()
+            "LIMIT %s"
 
-    response = "    Top {0} Articles by Views\n"  \
+    c.execute(query, (amount,))
+    rows = c.fetchall()
+    response = "    Top {0} Articles by Views\n" \
                "-----------------------------\n".format(amount)
     responseFooter = ""
 
@@ -62,20 +68,16 @@ def reportDailyErrors(x):
 
     query = "SELECT * from dailyerrors " \
             "WHERE " \
-            "cast(errorcount as decimal) / cast(hitcount as decimal) * 100 >= {0}" \
-            .format(x)
-    c.execute(query)
+            "cast(errorcount as decimal) / cast(hitcount as decimal) " \
+            "* 100 > %s"
+    c.execute(query, (x,))
     rows = c.fetchall()
 
     response = "Dates With More Than {0}% Error Rate\n" \
                "-----------------------------\n".format(x)
-
     responseFooter = ""
 
-
-
     for r in rows:
-        # date_object = datetime.strptime(r[0], '%m/%d/%Y')
         date_object = r[0].strftime('%B %d, %Y')
         responseFooter += str(date_object) + " - " + str(r[1]) + " errors\n"
 
@@ -84,12 +86,16 @@ def reportDailyErrors(x):
     return response
 
 
-# And here we go...
-# Connect to the database
-DB = connect()
-c = DB.cursor()
+def main():
+    # Method queries
+    reportTopArticles(3)
+    reportTopAuthors()
+    reportDailyErrors(1)
 
-# Method queries
-reportTopArticles(3)
-reportTopAuthors()
-reportDailyErrors(1)
+
+if __name__ == '__main__':
+    # And here we go...
+    # Connect to the database
+    DB = connect()
+    c = DB.cursor()
+    main()
